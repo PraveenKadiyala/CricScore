@@ -57,3 +57,90 @@
   font-size: 18px;
   border-radius: 16px;
 }
+
+/* ========================= */
+/* Card */
+.card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  backdrop-filter: blur(12px);
+}
+
+/* ========================= */
+/* Input */
+.input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: white;
+  width: 100%;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #10b981;
+}
+
+/* ========================= */
+/* Score Display */
+.score-display {
+  font-size: 64px;
+  font-weight: 900;
+  font-family: monospace;
+  color: #10b981;
+}
+
+/* ========================= */
+/* Ball Buttons */
+.ball-button {
+  padding: 16px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 18px;
+  transition: 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.ball-button:active {
+  transform: scale(0.95);
+}
+
+.ball-runs {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+.ball-four {
+  background: #f97316;
+  color: white;
+}
+
+.ball-six {
+  background: #a855f7;
+  color: white;
+}
+
+.ball-wicket {
+  background: #ef4444;
+  color: white;
+}
+
+.ball-extra {
+  background: #06b6d4;
+  color: white;
+}
+
+/* ========================= */
+/* Simple Fade Animation */
+.animate-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
