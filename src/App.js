@@ -299,6 +299,10 @@ useEffect(() => {
   )}
 
 </nav>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
         {screen === 'home' && (
@@ -507,7 +511,6 @@ function PlayersScreen({ players, setPlayers, onBack, isScorer }) {
           </button>
         </div>
       </div>
-
       {/* Players List */}
       <div className="card">
         <h3 className="text-lg font-semibold mb-4">
