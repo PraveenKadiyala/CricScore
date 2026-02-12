@@ -908,7 +908,7 @@ function MatchSetupScreen({ setup, setSetup, players, onComplete, onCancel }) {
 // SCORING SCREEN - The core cricket scoring engine
 // ============================================================================
 
-function ScoringScreen({ match, setMatch, onComplete, players })
+function ScoringScreen({ match, setMatch, onComplete, players }) {
   const [showBatsmanSelector, setShowBatsmanSelector] = useState(false);
   const [showBowlerSelector, setShowBowlerSelector] = useState(false);
   const [showWicketModal, setShowWicketModal] = useState(false);
