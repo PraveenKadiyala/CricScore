@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Plus, Edit2, Trash2, ChevronDown, Users, BarChart3, Play, Eye } from 'lucide-react';
 import { supabase } from './supabase';
+import "./styles.css";
+
 
 
 // ============================================================================
