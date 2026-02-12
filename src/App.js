@@ -102,6 +102,24 @@ const storage = {
 // ============================================================================
 
 export default function CricketScorer() {
+  const enableScorerMode = () => {
+  const password = prompt("Enter Scorer Passcode:");
+
+  if (password === "cricket123") {
+    setIsScorer(true);
+    localStorage.setItem("isScorer", "true");
+    alert("Scorer Mode Enabled");
+  } else {
+    alert("Wrong passcode");
+  }
+};
+
+  const disableScorerMode = () => {
+  setIsScorer(false);
+  localStorage.removeItem("isScorer");
+};
+
+  
   const [screen, setScreen] = useState('home'); // home, players, record-setup, scoring, view, stats, match-complete
   const [menuOpen, setMenuOpen] = useState(false);
   
@@ -207,6 +225,11 @@ useEffect(() => {
     setMenuOpen(false);
   };
 
+  const [isScorer, setIsScorer] = useState(
+  localStorage.getItem('isScorer') === 'true'
+);
+
+  
   // ============================================================================
   // RENDER
   // ============================================================================
@@ -237,18 +260,20 @@ useEffect(() => {
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40" onClick={() => setMenuOpen(false)}>
           <div className="absolute right-0 top-16 bg-slate-800 border border-white/10 rounded-l-2xl p-6 min-w-[250px] animate-in">
             <nav className="space-y-3">
-              {liveMatch && !liveMatch.completed && (
-                <button onClick={resumeMatch} className="w-full btn btn-primary justify-start">
+              {isScorer && liveMatch && !liveMatch.completed && (
                   <Play size={20} /> Resume Match
                 </button>
               )}
-              <button onClick={startRecording} className="w-full btn btn-primary justify-start">
+              {isScorer && (
+  <button onClick={startRecording} className="w-full btn btn-primary justify-start">
                 <Play size={20} /> {liveMatch && !liveMatch.completed ? 'New Match' : 'Record Score'}
               </button>
               <button onClick={viewScore} className="w-full btn btn-secondary justify-start">
                 <Eye size={20} /> View Score
               </button>
-              <button onClick={goToPlayers} className="w-full btn btn-outline justify-start">
+              <button onClick={goToPlayers}
+  className={`w-full btn ${isScorer ? 'btn-outline' : 'btn-outline opacity-70'} justify-start`}
+> className="w-full btn btn-outline justify-start">
                 <Users size={20} /> Players Data
               </button>
               <button onClick={goToStats} className="w-full btn btn-outline justify-start">
@@ -259,6 +284,15 @@ useEffect(() => {
         </div>
       )}
 
+{!isScorer ? (
+  <button onClick={enableScorerMode} className="w-full btn btn-outline justify-start">
+    🔐 Enable Scorer Mode
+  </button>
+) : (
+  <button onClick={disableScorerMode} className="w-full btn btn-outline justify-start">
+    🔓 Disable Scorer Mode
+  </button>
+)}
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
         {screen === 'home' && (
@@ -272,7 +306,8 @@ useEffect(() => {
         )}
         
         {screen === 'players' && (
-          <PlayersScreen
+  <PlayersScreen
+    isScorer={isScorer}
             players={players}
             setPlayers={setPlayers}
             onBack={goHome}
@@ -400,7 +435,7 @@ function HomeScreen({ onRecord, onResume, onView, hasLiveMatch, liveMatch }) {
 // PLAYERS SCREEN
 // ============================================================================
 
-function PlayersScreen({ players, setPlayers, onBack }) {
+function PlayersScreen({ players, setPlayers, onBack, isScorer }) {
   const [newPlayerName, setNewPlayerName] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
@@ -448,7 +483,9 @@ function PlayersScreen({ players, setPlayers, onBack }) {
       </div>
 
       {/* Add Player */}
-      <div className="card">
+      {isScorer && (
+  <div className="card">
+
         <h3 className="text-lg font-semibold mb-4">Add New Player</h3>
         <div className="flex gap-3">
           <input
@@ -500,8 +537,8 @@ function PlayersScreen({ players, setPlayers, onBack }) {
                   <>
                     <span className="font-medium">{player.name}</span>
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => startEdit(player)}
+                      {isScorer && (
+  <button onClick={() => startEdit(player)}
                         className="p-2 hover:bg-white/10 rounded-lg transition-colors"
                       >
                         <Edit2 size={16} />
