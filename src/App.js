@@ -124,7 +124,7 @@ export default function CricketScorer() {
   const [menuOpen, setMenuOpen] = useState(false);
   
   // Players data
-  const [players, setPlayers] = useState(() => storage.get('players', []));
+  const [players, setPlayers] = useState([]);
   
   // Current match setup
   const [matchSetup, setMatchSetup] = useState(null);
@@ -149,14 +149,25 @@ useEffect(() => {
   loadMatch();
 }, []);
 
+  // Load players from Supabase
+useEffect(() => {
+  const loadPlayers = async () => {
+    const { data } = await supabase
+      .from('players')
+      .select('*')
+      .order('name', { ascending: true });
+
+    if (data) {
+      setPlayers(data);
+    }
+  };
+
+  loadPlayers();
+}, []);
+
   
   // All completed matches
   const [matches, setMatches] = useState(() => storage.get('completedMatches', []));
-
-  // Save to localStorage whenever state changes
-  useEffect(() => {
-    storage.set('players', players);
-  }, [players]);
 
   // Persist active match for resume functionality
   useEffect(() => {
@@ -307,12 +318,13 @@ useEffect(() => {
       <main className="max-w-6xl mx-auto px-4 py-8">
         {screen === 'home' && (
           <HomeScreen 
-            onRecord={startRecording}
-            onResume={resumeMatch}
-            onView={viewScore}
-            hasLiveMatch={liveMatch !== null && !liveMatch?.completed}
-            liveMatch={liveMatch}
-          />
+  onRecord={startRecording}
+  onResume={resumeMatch}
+  onView={viewScore}
+  hasLiveMatch={liveMatch !== null && !liveMatch?.completed}
+  liveMatch={liveMatch}
+  isScorer={isScorer}
+/>
         )}
         
         {screen === 'players' && (
@@ -379,7 +391,7 @@ useEffect(() => {
 // HOME SCREEN
 // ============================================================================
 
-function HomeScreen({ onRecord, onResume, onView, hasLiveMatch, liveMatch }) {
+function HomeScreen({ onRecord, onResume, onView, hasLiveMatch, liveMatch, isScorer }) {
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-8 animate-in">
       <div className="text-center space-y-4">
@@ -405,10 +417,17 @@ function HomeScreen({ onRecord, onResume, onView, hasLiveMatch, liveMatch }) {
                 Overs: {Math.floor(liveMatch.innings[liveMatch.currentInnings]?.balls / 6)}.{liveMatch.innings[liveMatch.currentInnings]?.balls % 6} / {liveMatch.overs}
               </p>
             </div>
-            <button onClick={onResume} className="w-full btn btn-primary btn-lg">
-              <Play size={24} />
-              Resume Match
-            </button>
+            {isScorer ? (
+  <button onClick={onResume} className="w-full btn btn-primary btn-lg">
+    <Play size={24} />
+    Resume Match
+  </button>
+) : (
+  <button onClick={onView} className="w-full btn btn-secondary btn-lg">
+    <Eye size={24} />
+    View Match
+  </button>
+)}
           </div>
 
           {/* Secondary Actions */}
@@ -450,38 +469,57 @@ function PlayersScreen({ players, setPlayers, onBack, isScorer }) {
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
 
-  const addPlayer = () => {
-    if (!newPlayerName.trim()) return;
-    
-    const newPlayer = {
+const addPlayer = async () => {
+  if (!newPlayerName.trim()) return;
+
+  const { data, error } = await supabase
+    .from('players')
+    .insert([{ 
       id: Date.now().toString(),
       name: newPlayerName.trim()
-    };
-    
-    setPlayers([...players, newPlayer]);
-    setNewPlayerName('');
-  };
+    }])
+    .select();
 
-  const deletePlayer = (id) => {
-    if (confirm('Delete this player?')) {
-      setPlayers(players.filter(p => p.id !== id));
-    }
-  };
+  if (!error && data) {
+    setPlayers([...players, data[0]]);
+    setNewPlayerName('');
+  }
+};
+
+  const deletePlayer = async (id) => {
+  if (!confirm('Delete this player?')) return;
+
+  const { error } = await supabase
+    .from('players')
+    .delete()
+    .eq('id', id);
+
+  if (!error) {
+    setPlayers(players.filter(p => p.id !== id));
+  }
+};
 
   const startEdit = (player) => {
     setEditingId(player.id);
     setEditName(player.name);
   };
 
-  const saveEdit = () => {
-    if (!editName.trim()) return;
-    
+const saveEdit = async () => {
+  if (!editName.trim()) return;
+
+  const { error } = await supabase
+    .from('players')
+    .update({ name: editName.trim() })
+    .eq('id', editingId);
+
+  if (!error) {
     setPlayers(players.map(p => 
       p.id === editingId ? { ...p, name: editName.trim() } : p
     ));
     setEditingId(null);
     setEditName('');
-  };
+  }
+};
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-in">
