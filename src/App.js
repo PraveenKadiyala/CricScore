@@ -376,9 +376,12 @@ export default function CricketScorer() {
       {/* Header */}
       <header className="bg-slate-800/50 backdrop-blur-md border-b border-white/10 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
+          <button 
+            onClick={goHome}
+            className="text-2xl font-bold bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+          >
             Cricket Scorer
-          </h1>
+          </button>
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -524,7 +527,7 @@ function HomeScreen({ onRecord, onResume, onView, hasLiveMatch, liveMatch }) {
 
           {/* Secondary Actions */}
           <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md">
-            <button onClick={onRecord} className="btn btn-outline flex-1">
+            <button onClick={onRecord} className="btn btn-secondary flex-1">
               Start New Match
             </button>
             <button onClick={onView} className="btn btn-outline flex-1">
@@ -978,6 +981,7 @@ function ScoringScreen({ match, setMatch, onComplete }) {
   const [showWicketModal, setShowWicketModal] = useState(false);
   const [showExtraModal, setShowExtraModal] = useState(false);
   const [pendingWicketRuns, setPendingWicketRuns] = useState(0);
+  const [lastMatchState, setLastMatchState] = useState(null); // Store previous state for undo
 
   const currentInnings = match.innings[match.currentInnings];
   const battingTeam = match.currentInnings === 1 ? 
@@ -1021,6 +1025,9 @@ function ScoringScreen({ match, setMatch, onComplete }) {
   // - 'runs' parameter = runs off the bat (or byes/leg byes)
   // - 'extraRuns' parameter = the base extra penalty (1 for wide/no-ball, 0 for bye/leg-bye)
   const recordBall = (runs, isExtra = false, extraType = null, extraRuns = 0, isWicket = false, dismissalType = null, fielder = null) => {
+    // Save current state for undo before making changes
+    setLastMatchState(JSON.parse(JSON.stringify(match)));
+    
     const newMatch = JSON.parse(JSON.stringify(match));
     const innings = newMatch.innings[newMatch.currentInnings];
 
@@ -1248,6 +1255,19 @@ function ScoringScreen({ match, setMatch, onComplete }) {
     setMatch(newMatch);
   };
 
+  // Undo last ball
+  const undoLastBall = () => {
+    if (!lastMatchState) {
+      alert('No action to undo');
+      return;
+    }
+    
+    if (confirm('Undo the last ball?')) {
+      setMatch(lastMatchState);
+      setLastMatchState(null); // Clear undo state after restoring
+    }
+  };
+
   // Quick run buttons
   const quickRun = (runs) => {
     recordBall(runs);
@@ -1356,6 +1376,19 @@ function ScoringScreen({ match, setMatch, onComplete }) {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-in">
+      {/* Header with Undo Button */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-2xl font-bold">Live Scoring</h3>
+        <button
+          onClick={undoLastBall}
+          disabled={!lastMatchState}
+          className={`btn btn-sm ${lastMatchState ? 'btn-outline' : 'btn-outline opacity-50 cursor-not-allowed'}`}
+          title="Undo last ball"
+        >
+          ↶ Undo
+        </button>
+      </div>
+
       {/* Score Display */}
       <div className="card">
         <div className="text-center space-y-4">
