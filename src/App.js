@@ -260,39 +260,45 @@ useEffect(() => {
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40" onClick={() => setMenuOpen(false)}>
           <div className="absolute right-0 top-16 bg-slate-800 border border-white/10 rounded-l-2xl p-6 min-w-[250px] animate-in">
             <nav className="space-y-3">
-              {isScorer && liveMatch && !liveMatch.completed && (
-                  <Play size={20} /> Resume Match
-                </button>
-              )}
-              {isScorer && (
-  <button onClick={startRecording} className="w-full btn btn-primary justify-start">
-                <Play size={20} /> {liveMatch && !liveMatch.completed ? 'New Match' : 'Record Score'}
-              </button>
-              <button onClick={viewScore} className="w-full btn btn-secondary justify-start">
-                <Eye size={20} /> View Score
-              </button>
-              <button onClick={goToPlayers}
-  className={`w-full btn ${isScorer ? 'btn-outline' : 'btn-outline opacity-70'} justify-start`}
-> className="w-full btn btn-outline justify-start">
-                <Users size={20} /> Players Data
-              </button>
-              <button onClick={goToStats} className="w-full btn btn-outline justify-start">
-                <BarChart3 size={20} /> Stats
-              </button>
-            </nav>
-          </div>
-        </div>
-      )}
 
-{!isScorer ? (
-  <button onClick={enableScorerMode} className="w-full btn btn-outline justify-start">
-    🔐 Enable Scorer Mode
+  {isScorer && liveMatch && !liveMatch.completed && (
+    <button onClick={resumeMatch} className="w-full btn btn-primary justify-start">
+      <Play size={20} /> Resume Match
+    </button>
+  )}
+
+  {isScorer && (
+    <button onClick={startRecording} className="w-full btn btn-primary justify-start">
+      <Play size={20} /> {liveMatch && !liveMatch.completed ? 'New Match' : 'Record Score'}
+    </button>
+  )}
+
+  <button onClick={viewScore} className="w-full btn btn-secondary justify-start">
+    <Eye size={20} /> View Score
   </button>
-) : (
-  <button onClick={disableScorerMode} className="w-full btn btn-outline justify-start">
-    🔓 Disable Scorer Mode
+
+  <button
+    onClick={goToPlayers}
+    className={`w-full btn btn-outline justify-start ${!isScorer ? 'opacity-70' : ''}`}
+  >
+    <Users size={20} /> Players Data
   </button>
-)}
+
+  <button onClick={goToStats} className="w-full btn btn-outline justify-start">
+    <BarChart3 size={20} /> Stats
+  </button>
+
+  {!isScorer ? (
+    <button onClick={enableScorerMode} className="w-full btn btn-outline justify-start">
+      🔐 Enable Scorer Mode
+    </button>
+  ) : (
+    <button onClick={disableScorerMode} className="w-full btn btn-outline justify-start">
+      🔓 Disable Scorer Mode
+    </button>
+  )}
+
+</nav>
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
         {screen === 'home' && (
