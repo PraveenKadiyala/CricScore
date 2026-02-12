@@ -351,9 +351,10 @@ useEffect(() => {
         
         {screen === 'scoring' && liveMatch && (
           <ScoringScreen
-            match={liveMatch}
-            setMatch={setLiveMatch}
-            onComplete={(completedMatch) => {
+  match={liveMatch}
+  setMatch={setLiveMatch}
+  players={players}
+  onComplete={(completedMatch) => {
               setMatches([...matches, completedMatch]);
               setLiveMatch(null);
               setScreen('match-complete');
@@ -363,9 +364,10 @@ useEffect(() => {
         
         {screen === 'view' && (
           <ViewScreen
-            match={liveMatch}
-            onBack={goHome}
-          />
+  match={liveMatch}
+  players={players}
+  onBack={goHome}
+/>
         )}
         
         {screen === 'stats' && (
@@ -906,7 +908,7 @@ function MatchSetupScreen({ setup, setSetup, players, onComplete, onCancel }) {
 // SCORING SCREEN - The core cricket scoring engine
 // ============================================================================
 
-function ScoringScreen({ match, setMatch, onComplete }) {
+function ScoringScreen({ match, setMatch, onComplete, players })
   const [showBatsmanSelector, setShowBatsmanSelector] = useState(false);
   const [showBowlerSelector, setShowBowlerSelector] = useState(false);
   const [showWicketModal, setShowWicketModal] = useState(false);
@@ -924,12 +926,10 @@ function ScoringScreen({ match, setMatch, onComplete }) {
 
   // Helper to get player name by ID
   // Players are stored with their IDs in the match, but we need to look up actual names
-  const getPlayerName = (playerId) => {
-    // Get all players from localStorage
-    const allPlayers = storage.get('players', []);
-    const player = allPlayers.find(p => p.id === playerId);
-    return player ? player.name : playerId;
-  };
+ const getPlayerName = (playerId) => {
+  const player = players.find(p => p.id === playerId);
+  return player ? player.name : playerId;
+};
 
   // Initialize batsmen and bowler if not set
   useEffect(() => {
@@ -1705,7 +1705,7 @@ function ScoringScreen({ match, setMatch, onComplete }) {
 // VIEW SCREEN (Read-only)
 // ============================================================================
 
-function ViewScreen({ match, onBack }) {
+function ViewScreen({ match, onBack, players }) {
   if (!match) {
     return (
       <div className="text-center py-20 animate-in">
@@ -1721,11 +1721,9 @@ function ViewScreen({ match, onBack }) {
   
   // Helper to get player name by ID
   const getPlayerName = (playerId) => {
-    const allPlayers = storage.get('players', []);
-    const player = allPlayers.find(p => p.id === playerId);
-    return player ? player.name : playerId;
-  };
-
+  const player = players.find(p => p.id === playerId);
+  return player ? player.name : playerId;
+};
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-in">
       <div className="flex items-center justify-between">
@@ -1975,10 +1973,9 @@ function MatchCompleteScreen({ match, onHome }) {
 
   // Helper to get player name by ID
   const getPlayerName = (playerId) => {
-    const allPlayers = storage.get('players', []);
-    const player = allPlayers.find(p => p.id === playerId);
-    return player ? player.name : playerId;
-  };
+  const player = players.find(p => p.id === playerId);
+  return player ? player.name : playerId;
+};
 
   // Find top performers
   const allBatsmen = { ...innings1.batsmen, ...innings2.batsmen };
