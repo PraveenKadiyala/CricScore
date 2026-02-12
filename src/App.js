@@ -1129,7 +1129,11 @@ function ScoringScreen({ match, setMatch, onComplete, players }) {
     const allOut = innings.wickets >= battingTeam.players.length - 1;
     const oversComplete = innings.balls >= totalBalls;
 
-    if (allOut || oversComplete) {
+    const targetReached =
+  newMatch.currentInnings === 2 &&
+  innings.score >= innings.target;
+
+    if (allOut || oversComplete || targetReached) {
       // Check if match is complete
       if (newMatch.currentInnings === 1) {
         // Start second innings
@@ -1176,7 +1180,6 @@ function ScoringScreen({ match, setMatch, onComplete, players }) {
         }
         
         // Move to completed matches and clear active match
-        setMatch(newMatch);
         onComplete(newMatch);
         return;
       }
