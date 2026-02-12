@@ -511,6 +511,7 @@ function PlayersScreen({ players, setPlayers, onBack, isScorer }) {
           </button>
         </div>
       </div>
+  )}
       {/* Players List */}
       <div className="card">
         <h3 className="text-lg font-semibold mb-4">
