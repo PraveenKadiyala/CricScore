@@ -547,19 +547,24 @@ function PlayersScreen({ players, setPlayers, onBack, isScorer }) {
                   <>
                     <span className="font-medium">{player.name}</span>
                     <div className="flex gap-2">
-                      {isScorer && (
-  <button onClick={() => startEdit(player)}
-                        className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                      >
-                        <Edit2 size={16} />
-                      </button>
-                      <button
-                        onClick={() => deletePlayer(player.id)}
-                        className="p-2 hover:bg-red-500/20 rounded-lg transition-colors text-red-400"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
+  {isScorer && (
+    <>
+      <button
+        onClick={() => startEdit(player)}
+        className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+      >
+        <Edit2 size={16} />
+      </button>
+
+      <button
+        onClick={() => deletePlayer(player.id)}
+        className="p-2 hover:bg-red-500/20 rounded-lg transition-colors text-red-400"
+      >
+        <Trash2 size={16} />
+      </button>
+    </>
+  )}
+</div>
                   </>
                 )}
               </div>
