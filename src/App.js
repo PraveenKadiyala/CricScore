@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Plus, Edit2, Trash2, ChevronDown, Users, BarChart3, Play, Eye } from 'lucide-react';
+import { supabase } from './supabase';
+
 
 // ============================================================================
 // CRICKET SCORING APPLICATION - ARCHITECTURE OVERVIEW
@@ -108,7 +110,25 @@ export default function CricketScorer() {
   const [matchSetup, setMatchSetup] = useState(null);
   
   // Live match state - persisted across sessions
-  const [liveMatch, setLiveMatch] = useState(() => storage.get('activeMatch', null));
+  const [liveMatch, setLiveMatch] = useState(null);
+
+  // Load active match from Supabase
+useEffect(() => {
+  const loadMatch = async () => {
+    const { data } = await supabase
+      .from('active_match')
+      .select('*')
+      .eq('id', 1)
+      .single();
+
+    if (data) {
+      setLiveMatch(data.match_data);
+    }
+  };
+
+  loadMatch();
+}, []);
+
   
   // All completed matches
   const [matches, setMatches] = useState(() => storage.get('completedMatches', []));
@@ -120,12 +140,16 @@ export default function CricketScorer() {
 
   // Persist active match for resume functionality
   useEffect(() => {
+  const saveMatch = async () => {
     if (liveMatch) {
-      storage.set('activeMatch', liveMatch);
-    } else {
-      localStorage.removeItem('activeMatch');
+      await supabase
+        .from('active_match')
+        .upsert({ id: 1, match_data: liveMatch });
     }
-  }, [liveMatch]);
+  };
+
+  saveMatch();
+}, [liveMatch]);
 
   useEffect(() => {
     storage.set('completedMatches', matches);
