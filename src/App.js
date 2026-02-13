@@ -120,7 +120,7 @@ export default function CricketScorer() {
 };
 
   
-  const [screen, setScreen] = useState('home'); // home, players, record-setup, scoring, view, stats, match-complete
+  const [screen, setScreen] = useState('home'); // home, players, record-setup, scoring, view, stats, match-complete, history
   const [menuOpen, setMenuOpen] = useState(false);
   
   // Players data
@@ -163,6 +163,23 @@ useEffect(() => {
   };
 
   loadPlayers();
+}, []);
+
+  // Load past matches from Supabase
+useEffect(() => {
+  const loadMatches = async () => {
+    const { data } = await supabase
+      .from('matches')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (data) {
+      const allMatches = data.map(m => m.match_data);
+      setMatches(allMatches);
+    }
+  };
+
+  loadMatches();
 }, []);
 
   
@@ -299,6 +316,13 @@ useEffect(() => {
     <BarChart3 size={20} /> Stats
   </button>
 
+<button
+  onClick={() => setScreen('history')}
+  className="w-full btn btn-outline justify-start"
+>
+  📜 Past Matches
+</button>
+
   {!isScorer ? (
     <button onClick={enableScorerMode} className="w-full btn btn-outline justify-start">
       🔐 Enable Scorer Mode
@@ -349,19 +373,36 @@ useEffect(() => {
             onCancel={goHome}
           />
         )}
+
+              {screen === 'history' && (
+  <HistoryScreen
+    matches={matches}
+    players={players}
+    onBack={goHome}
+  />
+)}
         
         {screen === 'scoring' && liveMatch && (
           <ScoringScreen
   match={liveMatch}
   setMatch={setLiveMatch}
   players={players}
-  onComplete={(completedMatch) => {
-              setMatches([...matches, completedMatch]);
-              setLiveMatch(null);
-              setScreen('match-complete');
-            }}
-          />
-        )}
+onComplete={async (completedMatch) => {
+
+  // Save to Supabase
+  await supabase
+    .from('matches')
+    .insert([{
+      id: completedMatch.id,
+      match_data: completedMatch
+    }]);
+
+  setMatches([...matches, completedMatch]);
+  setLiveMatch(null);
+  setScreen('match-complete');
+}}
+ />
+)}
         
         {screen === 'view' && (
           <ViewScreen
@@ -2130,6 +2171,66 @@ function StatsScreen({ matches, players, onBack }) {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function HistoryScreen({ matches, players, onBack }) {
+  const [selectedMatch, setSelectedMatch] = useState(null);
+
+  const getPlayerName = (id) => {
+    const p = players.find(p => p.id === id);
+    return p ? p.name : id;
+  };
+
+  if (selectedMatch) {
+    return (
+      <ViewScreen
+        match={selectedMatch}
+        players={players}
+        onBack={() => setSelectedMatch(null)}
+      />
+    );
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6 animate-in">
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-bold">Past Matches</h2>
+        <button onClick={onBack} className="btn btn-outline btn-sm">
+          ← Back
+        </button>
+      </div>
+
+      {matches.length === 0 ? (
+        <p className="text-slate-400">No matches played yet.</p>
+      ) : (
+        <div className="space-y-3">
+          {matches.map(match => (
+            <div
+              key={match.id}
+              className="card hover:bg-white/10 cursor-pointer"
+              onClick={() => setSelectedMatch(match)}
+            >
+              <div className="flex justify-between">
+                <div>
+                  <p className="font-bold">
+                    {match.team1.name} vs {match.team2.name}
+                  </p>
+                  <p className="text-sm text-slate-400">
+                    {new Date(match.startTime).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-green-400 font-bold">
+                    {match.winner}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
