@@ -330,11 +330,12 @@ useEffect(() => {
         {screen === 'players' && (
   <PlayersScreen
     isScorer={isScorer}
-            players={players}
-            setPlayers={setPlayers}
-            onBack={goHome}
-          />
-        )}
+    players={players}
+    setPlayers={setPlayers}
+    matches={matches}
+    onBack={goHome}
+  />
+)}
         
         {screen === 'record-setup' && (
           <MatchSetupScreen
@@ -467,10 +468,71 @@ function HomeScreen({ onRecord, onResume, onView, hasLiveMatch, liveMatch, isSco
 // PLAYERS SCREEN
 // ============================================================================
 
-function PlayersScreen({ players, setPlayers, onBack, isScorer }) {
+function PlayersScreen({ players, setPlayers, matches, onBack, isScorer }) {
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [newPlayerName, setNewPlayerName] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
+
+  const calculatePlayerStats = (playerId) => {
+  let batting = {
+    matches: 0,
+    runs: 0,
+    balls: 0,
+    fours: 0,
+    sixes: 0
+  };
+
+  let bowling = {
+    balls: 0,
+    runs: 0,
+    wickets: 0,
+    maidens: 0
+  };
+
+  matches.forEach(match => {
+    let played = false;
+
+    [1,2].forEach(innNum => {
+      const innings = match.innings[innNum];
+      if (!innings) return;
+
+      if (match.team1.players.includes(playerId) || 
+          match.team2.players.includes(playerId)) {
+        played = true;
+      }
+
+      if (innings.batsmen[playerId]) {
+        const stats = innings.batsmen[playerId];
+        batting.runs += stats.runs;
+        batting.balls += stats.balls;
+        batting.fours += stats.fours;
+        batting.sixes += stats.sixes;
+      }
+
+      if (innings.bowlers[playerId]) {
+        const stats = innings.bowlers[playerId];
+        bowling.balls += stats.balls;
+        bowling.runs += stats.runs;
+        bowling.wickets += stats.wickets;
+        bowling.maidens += stats.maidens;
+      }
+    });
+
+    if (played) batting.matches++;
+  });
+
+  const strikeRate = batting.balls > 0
+    ? (batting.runs / batting.balls * 100).toFixed(2)
+    : 0;
+
+  const overs = Math.floor(bowling.balls / 6);
+  const economy = overs > 0
+    ? (bowling.runs / overs).toFixed(2)
+    : 0;
+
+  return { batting, bowling, strikeRate, overs, economy };
+};
 
 const addPlayer = async () => {
   if (!newPlayerName.trim()) return;
@@ -586,7 +648,15 @@ const saveEdit = async () => {
                   </>
                 ) : (
                   <>
-                    <span className="font-medium">{player.name}</span>
+                    <div className="flex items-center justify-between w-full">
+  <span className="font-medium">{player.name}</span>
+  <button
+    onClick={() => setSelectedPlayer(player.id)}
+    className="btn btn-outline btn-sm"
+  >
+    Stats
+  </button>
+</div>
                     <div className="flex gap-2">
   {isScorer && (
     <>
@@ -616,6 +686,48 @@ const saveEdit = async () => {
     </div>
   );
 }
+
+    {selectedPlayer && (
+  <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+    <div className="bg-slate-800 p-6 rounded-2xl w-full max-w-md">
+      <h3 className="text-xl font-bold mb-4">
+        {players.find(p => p.id === selectedPlayer)?.name} - Career Stats
+      </h3>
+
+      {(() => {
+        const stats = calculatePlayerStats(selectedPlayer);
+        return (
+          <>
+            <div className="mb-4">
+              <h4 className="text-green-400 font-semibold mb-2">Batting</h4>
+              <p>Matches: {stats.batting.matches}</p>
+              <p>Runs: {stats.batting.runs}</p>
+              <p>Fours: {stats.batting.fours}</p>
+              <p>Sixes: {stats.batting.sixes}</p>
+              <p>Strike Rate: {stats.strikeRate}</p>
+            </div>
+
+            <div className="mb-4">
+              <h4 className="text-blue-400 font-semibold mb-2">Bowling</h4>
+              <p>Overs: {stats.overs}</p>
+              <p>Maidens: {stats.bowling.maidens}</p>
+              <p>Runs: {stats.bowling.runs}</p>
+              <p>Wickets: {stats.bowling.wickets}</p>
+              <p>Economy: {stats.economy}</p>
+            </div>
+
+            <button
+              onClick={() => setSelectedPlayer(null)}
+              className="w-full btn btn-primary"
+            >
+              Close
+            </button>
+          </>
+        );
+      })()}
+    </div>
+  </div>
+)}
 
 // ============================================================================
 // MATCH SETUP SCREEN
