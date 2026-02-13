@@ -1820,6 +1820,62 @@ function ViewScreen({ match, onBack, players }) {
         </div>
       )}
 
+{/* Full Batting Scorecard */}
+<div className="card">
+  <h3 className="text-xl font-bold mb-4">Batting Scorecard</h3>
+  <div className="space-y-2">
+    {Object.entries(currentInnings.batsmen).map(([id, stats]) => (
+      <div key={id} className="flex justify-between bg-white/5 p-2 rounded">
+        <div>
+          <p className="font-semibold">
+            {getPlayerName(id)} {stats.out ? '' : '*'}
+          </p>
+          {stats.dismissal && (
+            <p className="text-xs text-slate-400">
+              {stats.dismissal.type}
+            </p>
+          )}
+        </div>
+        <div className="font-mono">
+          {stats.runs} ({stats.balls})
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+{/* Bowling Scorecard */}
+<div className="card">
+  <h3 className="text-xl font-bold mb-4">Bowling</h3>
+  {Object.entries(currentInnings.bowlers).map(([id, stats]) => (
+    <div key={id} className="flex justify-between bg-white/5 p-2 rounded mb-2">
+      <p>{getPlayerName(id)}</p>
+      <p className="font-mono">
+        {stats.overs}.{stats.balls % 6} - {stats.runs} - {stats.wickets}
+      </p>
+    </div>
+  ))}
+</div>
+
+{/* Ball By Ball */}
+<div className="card">
+  <h3 className="text-xl font-bold mb-4">Ball By Ball</h3>
+  {[...new Set(currentInnings.ballByBall.map(b => b.over))].map(over => (
+    <div key={over} className="mb-3">
+      <p className="text-sm text-slate-400">Over {over + 1}</p>
+      <div className="flex gap-2 flex-wrap">
+        {currentInnings.ballByBall
+          .filter(b => b.over === over)
+          .map((b, i) => (
+            <div key={i} className="px-2 py-1 bg-white/10 rounded text-xs">
+              {b.isWicket ? 'W' : b.totalRuns}
+            </div>
+          ))}
+      </div>
+    </div>
+  ))}
+</div>
+    
       <p className="text-center text-slate-400 text-sm">
         This is a read-only view. Scores update automatically.
       </p>
