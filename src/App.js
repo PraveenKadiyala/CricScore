@@ -378,12 +378,13 @@ useEffect(() => {
           />
         )}
         
-        {screen === 'match-complete' && matches.length > 0 && (
-          <MatchCompleteScreen
-            match={matches[matches.length - 1]}
-            onHome={goHome}
-          />
-        )}
+      {screen === 'match-complete' && matches.length > 0 && (
+  <MatchCompleteScreen
+    match={matches[matches.length - 1]}
+    players={players}
+    onHome={goHome}
+  />
+)}
       </main>
     </div>
   );
@@ -1970,7 +1971,7 @@ function StatsScreen({ matches, players, onBack }) {
 // MATCH COMPLETE SCREEN
 // ============================================================================
 
-function MatchCompleteScreen({ match, onHome }) {
+function MatchCompleteScreen({ match, onHome, players }) {
   const innings1 = match.innings[1];
   const innings2 = match.innings[2];
 
