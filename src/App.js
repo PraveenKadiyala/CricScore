@@ -1144,6 +1144,10 @@ function ScoringScreen({ match, setMatch, onComplete, players }) {
     // Update total score
     innings.score += runsToAdd;
 
+    const currentBallNumber = innings.balls;
+const overNumber = Math.floor(currentBallNumber / 6);
+const ballNumber = (currentBallNumber % 6) + 1;
+    
     // Update balls (only if ball counts)
     if (ballCounts) {
       innings.balls++;
@@ -1232,8 +1236,8 @@ function ScoringScreen({ match, setMatch, onComplete, players }) {
 
     // Ball by ball record
     innings.ballByBall.push({
-      over: Math.floor(innings.balls / 6),
-      ball: innings.balls % 6 + 1,
+      over: overNumber,
+ball: ballNumber,
       bowler: bowlerId,
       batsman: strikerId,
       runs,
