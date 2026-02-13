@@ -683,11 +683,7 @@ const saveEdit = async () => {
           </div>
         )}
       </div>
-    </div>
-  );
-}
-
-    {selectedPlayer && (
+           {selectedPlayer && (
   <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
     <div className="bg-slate-800 p-6 rounded-2xl w-full max-w-md">
       <h3 className="text-xl font-bold mb-4">
@@ -728,6 +724,9 @@ const saveEdit = async () => {
     </div>
   </div>
 )}
+    </div>
+  );
+}
 
 // ============================================================================
 // MATCH SETUP SCREEN
