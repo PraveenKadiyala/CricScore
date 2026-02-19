@@ -837,17 +837,23 @@ function MatchSetupScreen({ setup, setSetup, players, teams, setTeams, onComplet
   const exists = teams.find(t => t.name === name);
 
   if (!exists) {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('teams')
       .insert([{
         id: Date.now().toString(),
-        name,
+        name: name,
         players: playersList
       }])
       .select();
 
+    if (error) {
+      console.error("Team insert error:", error);
+      alert("Error saving team. Check console.");
+      return;
+    }
+
     if (data) {
-      setTeams([...teams, data[0]]);
+      setTeams(prev => [...prev, data[0]]);
     }
   }
 };
