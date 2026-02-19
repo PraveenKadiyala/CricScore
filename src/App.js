@@ -829,7 +829,7 @@ function MatchSetupScreen({ setup, setSetup, players, teams, setTeams, onComplet
     }
   };
 
-  const completeSetup = () => {
+  const completeSetup = async () => {
     const battingFirst = tossDecision === 'bat' ? tossWinner : (tossWinner === team1Name ? team2Name : team1Name);
     const bowlingFirst = battingFirst === team1Name ? team2Name : team1Name;
 
