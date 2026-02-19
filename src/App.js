@@ -1251,12 +1251,36 @@ ball: ballNumber,
 
     // Strike rotation (odd runs or wicket)
     // Note: Strike changes on odd runs only if no wicket
-    if (!isWicket && (runsToAdd % 2 === 1)) {
-      const temp = innings.currentBatsmen.striker;
-      innings.currentBatsmen.striker = innings.currentBatsmen.nonStriker;
-      innings.currentBatsmen.nonStriker = temp;
-    }
+// Strike rotation logic
+let shouldRotate = false;
 
+if (!isWicket) {
+  if (isExtra) {
+    // Wide or No Ball
+    if (extraType === 'Wide' || extraType === 'No Ball') {
+      // Rotate only if batsmen actually ran (additional runs odd)
+      if (runs % 2 === 1) {
+        shouldRotate = true;
+      }
+    } else {
+      // Bye or Leg Bye
+      if (runs % 2 === 1) {
+        shouldRotate = true;
+      }
+    }
+  } else {
+    // Normal delivery
+    if (runs % 2 === 1) {
+      shouldRotate = true;
+    }
+  }
+}
+
+if (shouldRotate) {
+  const temp = innings.currentBatsmen.striker;
+  innings.currentBatsmen.striker = innings.currentBatsmen.nonStriker;
+  innings.currentBatsmen.nonStriker = temp;
+}
     // Over completion (only if this was a legal delivery)
     if (ballCounts && innings.balls % 6 === 0) {
       // Check for maiden
