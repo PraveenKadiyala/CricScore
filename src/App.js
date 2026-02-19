@@ -182,7 +182,21 @@ useEffect(() => {
   loadMatches();
 }, []);
 
-  
+ const [teams, setTeams] = useState([]);
+
+  useEffect(() => {
+  const loadTeams = async () => {
+    const { data } = await supabase
+      .from('teams')
+      .select('*')
+      .order('created_at', { ascending: true });
+
+    if (data) setTeams(data);
+  };
+
+  loadTeams();
+}, []);
+
   // All completed matches
   const [matches, setMatches] = useState(() => storage.get('completedMatches', []));
 
@@ -366,6 +380,8 @@ useEffect(() => {
             setup={matchSetup}
             setSetup={setMatchSetup}
             players={players}
+teams={teams}
+  setTeams={setTeams}
             onComplete={(match) => {
               setLiveMatch(match);
               setScreen('scoring');
@@ -773,7 +789,7 @@ const saveEdit = async () => {
 // MATCH SETUP SCREEN
 // ============================================================================
 
-function MatchSetupScreen({ setup, setSetup, players, onComplete, onCancel }) {
+function MatchSetupScreen({ setup, setSetup, players, teams, setTeams, onComplete, onCancel }) {
   const { step, overs, team1Name, team2Name, team1Players, team2Players, tossWinner, tossDecision } = setup;
 
   const nextStep = () => {
@@ -817,6 +833,28 @@ function MatchSetupScreen({ setup, setSetup, players, onComplete, onCancel }) {
     const battingFirst = tossDecision === 'bat' ? tossWinner : (tossWinner === team1Name ? team2Name : team1Name);
     const bowlingFirst = battingFirst === team1Name ? team2Name : team1Name;
 
+    const saveTeamIfNew = async (name, playersList) => {
+  const exists = teams.find(t => t.name === name);
+
+  if (!exists) {
+    const { data } = await supabase
+      .from('teams')
+      .insert([{
+        id: Date.now().toString(),
+        name,
+        players: playersList
+      }])
+      .select();
+
+    if (data) {
+      setTeams([...teams, data[0]]);
+    }
+  }
+};
+
+await saveTeamIfNew(team1Name, team1Players);
+await saveTeamIfNew(team2Name, team2Players);
+    
     const newMatch = {
       id: Date.now().toString(),
       overs: parseInt(overs),
@@ -890,6 +928,26 @@ function MatchSetupScreen({ setup, setSetup, players, onComplete, onCancel }) {
         {step === 1 && (
           <div className="space-y-4">
             <h3 className="text-xl font-semibold">First Team Name</h3>
+         
+          {/* Existing Teams */}
+    {teams && teams.length > 0 && (
+      <div className="space-y-2">
+        <p className="text-sm text-slate-400">Select Existing Team</p>
+        {teams.map(team => (
+          <button
+            key={team.id}
+            onClick={() => {
+              updateSetup('team1Name', team.name);
+              updateSetup('team1Players', team.players);
+            }}
+            className="w-full p-2 bg-white/5 hover:bg-white/10 rounded-lg text-left"
+          >
+            {team.name}
+          </button>
+        ))}
+      </div>
+    )}
+
             <input
               type="text"
               className="input"
@@ -900,10 +958,32 @@ function MatchSetupScreen({ setup, setSetup, players, onComplete, onCancel }) {
           </div>
         )}
 
+
+
         {/* Step 2: Team 2 Name */}
         {step === 2 && (
           <div className="space-y-4">
             <h3 className="text-xl font-semibold">Second Team Name</h3>
+
+          {/* Existing Teams */}
+    {teams && teams.length > 0 && (
+      <div className="space-y-2">
+        <p className="text-sm text-slate-400">Select Existing Team</p>
+        {teams.map(team => (
+          <button
+            key={team.id}
+            onClick={() => {
+              updateSetup('team2Name', team.name);
+              updateSetup('team2Players', team.players);
+            }}
+            className="w-full p-2 bg-white/5 hover:bg-white/10 rounded-lg text-left"
+          >
+            {team.name}
+          </button>
+        ))}
+      </div>
+    )}
+
             <input
               type="text"
               className="input"
