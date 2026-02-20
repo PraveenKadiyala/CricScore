@@ -939,18 +939,22 @@ await saveTeamIfNew(team2Name, team2Players);
     {teams && teams.length > 0 && (
       <div className="space-y-2">
         <p className="text-sm text-slate-400">Select Existing Team</p>
-        {teams.map(team => (
-          <button
-            key={team.id}
-            onClick={() => {
-              updateSetup('team1Name', team.name);
-              updateSetup('team1Players', team.players);
-            }}
-            className="w-full p-2 bg-white/5 hover:bg-white/10 rounded-lg text-left"
-          >
-            {team.name}
-          </button>
-        ))}
+{teams.map(team => (
+  <button
+    type="button"
+    key={team.id}
+    onClick={() => {
+      setSetup(prev => ({
+        ...prev,
+        team1Name: team.name,
+        team1Players: team.players
+      }));
+    }}
+    className="w-full p-3 bg-white/5 hover:bg-green-500/20 border border-white/10 rounded-lg text-left transition-all"
+  >
+    {team.name}
+  </button>
+))}
       </div>
     )}
 
@@ -972,21 +976,22 @@ await saveTeamIfNew(team2Name, team2Players);
             <h3 className="text-xl font-semibold">Second Team Name</h3>
 
           {/* Existing Teams */}
-    {teams && teams.length > 0 && (
-      <div className="space-y-2">
-        <p className="text-sm text-slate-400">Select Existing Team</p>
-        {teams.map(team => (
-          <button
-            key={team.id}
-            onClick={() => {
-              updateSetup('team2Name', team.name);
-              updateSetup('team2Players', team.players);
-            }}
-            className="w-full p-2 bg-white/5 hover:bg-white/10 rounded-lg text-left"
-          >
-            {team.name}
-          </button>
-        ))}
+    {teams.map(team => (
+  <button
+    type="button"
+    key={team.id}
+    onClick={() => {
+      setSetup(prev => ({
+        ...prev,
+        team2Name: team.name,
+        team2Players: team.players
+      }));
+    }}
+    className="w-full p-3 bg-white/5 hover:bg-green-500/20 border border-white/10 rounded-lg text-left transition-all"
+  >
+    {team.name}
+  </button>
+))}
       </div>
     )}
 
