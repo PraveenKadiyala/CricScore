@@ -972,38 +972,41 @@ await saveTeamIfNew(team2Name, team2Players);
 
         {/* Step 2: Team 2 Name */}
         {step === 2 && (
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold">Second Team Name</h3>
+  <div className="space-y-4">
+    <h3 className="text-xl font-semibold">Second Team Name</h3>
 
-          {/* Existing Teams */}
-    {teams.map(team => (
-  <button
-    type="button"
-    key={team.id}
-    onClick={() => {
-      setSetup(prev => ({
-        ...prev,
-        team2Name: team.name,
-        team2Players: team.players
-      }));
-    }}
-    className="w-full p-3 bg-white/5 hover:bg-green-500/20 border border-white/10 rounded-lg text-left transition-all"
-  >
-    {team.name}
-  </button>
-))}
+    {/* Existing Teams */}
+    {teams && teams.length > 0 && (
+      <div className="space-y-2">
+        <p className="text-sm text-slate-400">Select Existing Team</p>
+        {teams.map(team => (
+          <button
+            type="button"
+            key={team.id}
+            onClick={() => {
+              setSetup(prev => ({
+                ...prev,
+                team2Name: team.name,
+                team2Players: team.players
+              }));
+            }}
+            className="w-full p-3 bg-white/5 hover:bg-green-500/20 border border-white/10 rounded-lg text-left transition-all"
+          >
+            {team.name}
+          </button>
+        ))}
       </div>
     )}
 
-            <input
-              type="text"
-              className="input"
-              placeholder="Enter team name"
-              value={team2Name}
-              onChange={(e) => updateSetup('team2Name', e.target.value)}
-            />
-          </div>
-        )}
+    <input
+      type="text"
+      className="input"
+      placeholder="Enter team name"
+      value={team2Name}
+      onChange={(e) => updateSetup('team2Name', e.target.value)}
+    />
+  </div>
+)}
 
         {/* Step 3: Team 1 Players */}
         {step === 3 && (
